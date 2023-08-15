@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/image">
+        <file>resources/image/resources/blue-background.png</file>
+        <file>resources/image/resources/card.jpg</file>
+        <file>resources/image/resources/functional_block.jpg</file>
+        <file>resources/image/head/1.jpg</file>
+        <file>resources/image/head/2.jpg</file>
+        <file>resources/image/head/3.jpg</file>
+        <file>resources/image/head/4.jpg</file>
+        <file>resources/image/head/5.jpg</file>
+    </qresource>
+    <qresource prefix="/config">
+        <file>resources/config/config.ini</file>
+    </qresource>
+</RCC>
