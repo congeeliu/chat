@@ -122,3 +122,43 @@ QString Util::getRandomKey(int len)
     }
     return key;
 }
+
+QString Util::encrypt(QString content, User user, User curFriend, std::string friend_pub_e, std::string friend_pub_n)
+{
+    content += "[" + Util::MD5(content) + "]";
+    QString AESKey = Util::getRandomKey(16);
+    QString ciphertext = Util::AESEncrypt(AESKey, content); // "AES(content[MD5(content)])"
+
+    QString header = user.getId() + "," + curFriend.getId() + ":";  // "userId,friendId:len(RSA):RSA(AES-key)"
+    QString AESKeyEncryptedByRSA = Util::RSAEncrypt(friend_pub_e, friend_pub_n, AESKey);
+    header += QString::number(AESKeyEncryptedByRSA.size()) + ":" + AESKeyEncryptedByRSA;
+
+    return header + ciphertext;
+}
+
+std::pair<bool, QString> Util::decrypt(QString receiveMessage, std::string pri_d, std::string pri_n)
+{
+    int len = 0;
+    for (int i = 0; i < receiveMessage.size(); i ++)
+    {
+        if (receiveMessage[i] == ':')
+        {
+            len = receiveMessage.mid(0, i).toInt();
+            receiveMessage = receiveMessage.mid(i + 1);
+            break;
+        }
+    }
+
+    QString AESKeyEncryptedByRSA = receiveMessage.mid(0, len);
+    QString AESKey = Util::RSADecrypt(pri_d, pri_n, AESKeyEncryptedByRSA);
+    QString ciphertext = receiveMessage.mid(len);
+    QString message = Util::AESDecrypt(AESKey, ciphertext);
+
+    qDebug() << message;
+
+    QString content = message.mid(0, message.size() - 34);
+    QString md5 = message.mid(content.size() + 1, 32);
+
+    if (Util::MD5(content) == md5) return {true, content};
+    else return {false, content};
+}

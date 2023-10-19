@@ -36,7 +36,8 @@ SOURCES += \
     src/utils/sql.cpp \
     src/utils/util.cpp \
     src/utils/rsa.cpp \
-    src/utils/qaesencryption.cpp
+    src/utils/qaesencryption.cpp \
+    src/user/user.cpp
 
 
 HEADERS += \
@@ -50,7 +51,8 @@ HEADERS += \
     src/utils/sql.h \
     src/utils/util.h \
     src/utils/rsa.h \
-    src/utils/qaesencryption.h
+    src/utils/qaesencryption.h \
+    src/user/user.h
 
 
 FORMS += \

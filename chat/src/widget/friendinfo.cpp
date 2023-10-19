@@ -5,18 +5,16 @@
 
 const QString HEAD_IMAGE_PATH = Util::getConfigValue("IMAGE_PATH", "head_path");
 
-FriendInfo::FriendInfo(QString _id, QString _nickname, QString _photo, QWidget *parent) :
+FriendInfo::FriendInfo(User _user, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FriendInfo)
 {
     ui->setupUi(this);
 
-    id = _id;
-    nickname = _nickname;
-    photo = _photo;
+    user = _user;
 
-    ui->nickname->setText(nickname);
-    QPixmap pix(HEAD_IMAGE_PATH + photo);
+    ui->nickname->setText(user.getNickname());
+    QPixmap pix(HEAD_IMAGE_PATH + user.getPhoto());
     ui->photo->setPixmap(pix);
 }
 
@@ -27,15 +25,15 @@ FriendInfo::~FriendInfo()
 
 QString FriendInfo::getId()
 {
-    return id;
+    return user.getId();
 }
 
 QString FriendInfo::getNickname()
 {
-    return nickname;
+    return user.getNickname();
 }
 
 QString FriendInfo::getPhoto()
 {
-    return photo;
+    return user.getPhoto();
 }

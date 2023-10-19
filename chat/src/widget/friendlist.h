@@ -2,6 +2,7 @@
 #define FRIENDLIST_H
 
 #include "chatbox.h"
+#include "src/user/user.h"
 #include <QWidget>
 #include <QListWidgetItem>
 #include <QTcpSocket>
@@ -16,7 +17,8 @@ class FriendList : public QWidget
     Q_OBJECT
 
 public:
-    explicit FriendList(QString _userId, QString _nickname, QString _userPhoto, QWidget *parent = nullptr);
+//    explicit FriendList(QString _userId, QString _nickname, QString _userPhoto, QWidget *parent = nullptr);
+    explicit FriendList(User _user, QWidget *parent = nullptr);
     ~FriendList();
 
 private slots:
@@ -29,12 +31,14 @@ private slots:
 
 private:
     Ui::FriendList *ui;
-    QString userId;
-    QString nickname;
-    QString userPhoto;
+//    QString userId;
+//    QString nickname;
+//    QString userPhoto;
     QTcpSocket *socket;
     QHash<QString, ChatBox *> chatBox;
     QHash<QString, std::string> keys;
+    User user;
+    void setHeaderCard();
     void setFriendList();
     void addItem(QString id, QString nickname, QString photo);
     void connectServer();

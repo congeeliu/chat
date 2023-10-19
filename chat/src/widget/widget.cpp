@@ -4,6 +4,7 @@
 #include "src/utils/sql.h"
 #include "src/utils/util.h"
 #include "register.h"
+#include "src/user/user.h"
 #include <QDebug>
 #include <QSqlQuery>
 #include <QMessageBox>
@@ -31,12 +32,10 @@ void Widget::on_loginButton_clicked()
     if (errorMessage == "success")
     {
         QMessageBox::information(this, "登录提示", "登录成功");
-        this->hide();
-        QString userId = Sql::findIdByAccount(account);
-        QString nickname = Sql::findNicknameById(userId);
-        QString photo = Sql::findPhotoById(userId);
-        FriendList *f = new FriendList(userId, nickname, photo);
+        User user = Sql::findUserByAccount(account);
+        FriendList *f = new FriendList(user);
         f->show();
+        this->hide();
     }
     else QMessageBox::warning(this, "登录提示", errorMessage);
 }

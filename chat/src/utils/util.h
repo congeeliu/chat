@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "src/user/user.h"
 #include <QString>
 #include <QHash>
 
@@ -18,6 +19,8 @@ public:
     static QString AESEncrypt(QString key, QString text);
     static QString AESDecrypt(QString key, QString hexStr);
     static QString getRandomKey(int length);
+    static QString encrypt(QString content, User user, User curFriend, std::string friend_pub_e, std::string friend_pub_n);
+    static std::pair<bool, QString> decrypt(QString receiveMessage, std::string pri_d, std::string pri_n);
 };
 
 #endif // UTIL_H

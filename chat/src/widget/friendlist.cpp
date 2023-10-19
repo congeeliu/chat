@@ -18,27 +18,18 @@ const QString CARD_IMAGE_PATH = Util::getConfigValue("IMAGE_PATH", "card");
 const QString BLUE_BACKGROUND_IMAGE_PATH = Util::getConfigValue("IMAGE_PATH", "blue_background");
 const QString HEAD_IMAGE_PATH = Util::getConfigValue("IMAGE_PATH", "head_path");
 
-FriendList::FriendList(QString _userId, QString _nickname, QString _userPhoto, QWidget *parent) :
+FriendList::FriendList(User _user, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FriendList)
 {
     ui->setupUi(this);
 
-    userId = _userId;
-    nickname = _nickname;
-    userPhoto = _userPhoto;
-
-    QPixmap card(":/image/resources/image/resources/card.jpg");
-    QPixmap photo(HEAD_IMAGE_PATH + userPhoto);
-    QPixmap smallCard(BLUE_BACKGROUND_IMAGE_PATH);
-    ui->card->setPixmap(card);
-    ui->photo->setPixmap(photo);
-    ui->smallCard->setPixmap(smallCard);
-    ui->nicknameLabel->setText(nickname);
+    user = _user;
 
     keys = Util::getRSAKeys();
-    Sql::updatePublicKeyById(userId, keys["pub_e"], keys["pub_n"]);
+    Sql::updatePublicKeyById(user.getId(), keys["pub_e"], keys["pub_n"]);
 
+    setHeaderCard();
     setFriendList();
 
     socket = new QTcpSocket;    // 创建socket对象
@@ -52,10 +43,21 @@ FriendList::~FriendList()
     delete ui;
 }
 
+void FriendList::setHeaderCard()
+{
+    QPixmap card(":/image/resources/image/resources/card.jpg");
+    QPixmap photo(HEAD_IMAGE_PATH + user.getPhoto());
+    QPixmap smallCard(BLUE_BACKGROUND_IMAGE_PATH);
+    ui->card->setPixmap(card);
+    ui->photo->setPixmap(photo);
+    ui->smallCard->setPixmap(smallCard);
+    ui->nicknameLabel->setText(user.getNickname());
+}
+
 void FriendList::setFriendList()
 {
     ui->listWidget->clear();
-    QVector<FriendInfo *> friendList = Sql::findFriendListById(userId);
+    QVector<FriendInfo *> friendList = Sql::findFriendListById(user.getId());
     for (int i = 0; i < friendList.size(); i ++)
     {
         QListWidgetItem* pItem = new QListWidgetItem();
@@ -69,7 +71,9 @@ void FriendList::on_listWidget_itemDoubleClicked(QListWidgetItem *item) // 打�
 {
     FriendInfo *friendInfo = static_cast<FriendInfo *>(ui->listWidget->itemWidget(item));
     QString friendId = friendInfo->getId();
-    ChatBox *c = new ChatBox(userId, nickname, friendId, friendInfo->getNickname(), socket);
+//    ChatBox *c = new ChatBox(userId, nickname, friendId, friendInfo->getNickname(), socket);
+    User curFriend(friendId, friendInfo->getNickname(), friendInfo->getPhoto());
+    ChatBox *c = new ChatBox(user, curFriend, socket);
     chatBox[friendId] = c;
     c->setPrivateKey(keys["pri_d"], keys["pri_n"]);
     std::pair<std::string, std::string> publicKey = Sql::findPublicKeyById(friendId);
@@ -89,7 +93,7 @@ void FriendList::connectServer()
 //        QMessageBox::information(this, "连接提示", "连接服务器成功");
         qDebug() << "连接服务器成功";
         QByteArray ba;
-        ba.append(userId);
+        ba.append(user.getId());
         socket->write(ba);
     });
 
@@ -117,7 +121,7 @@ void FriendList::updateCheckBoxMessage()
 
 void FriendList::on_addButton_clicked()
 {
-    AddFriend *addFriend = new AddFriend(userId);
+    AddFriend *addFriend = new AddFriend(user.getId());
     addFriend->show();
     connect(addFriend, &AddFriend::addFriendSuccess, this, &FriendList::setFriendList);
 }
@@ -128,7 +132,7 @@ void FriendList::on_deleteButton_clicked()
     if (items.size())
     {
         FriendInfo *friendInfo = static_cast<FriendInfo *>(ui->listWidget->itemWidget(items[0]));
-        DeleteFriend *deleteFriend = new DeleteFriend(userId, friendInfo->getId());
+        DeleteFriend *deleteFriend = new DeleteFriend(user.getId(), friendInfo->getId());
         deleteFriend->show();
         connect(deleteFriend, &DeleteFriend::deleteFriendSuccess, this, &FriendList::setFriendList);
     }
